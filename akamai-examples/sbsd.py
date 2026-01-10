@@ -4,7 +4,7 @@ from loguru import logger
 # Configuration
 URL = "https://bol.com/"
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
-PROXY = "http://user:pass@ip:port" # Important: Use The Netherlands as country in your proxy for bol.com
+PROXY = "http://user:pass@ip:port" # Important: Use The Netherlands (nl) as country in your proxy for bol.com
 API_KEY = "sr-YOUR-KEY"
 
 HEADERS = {
