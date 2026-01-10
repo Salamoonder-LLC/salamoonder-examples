@@ -30,7 +30,12 @@ task_id = client.task.createTask(
 )
 
 result = client.task.getTaskResult(task_id)
-solved_cookie = result['cookie'].split("datadome=")[1].split(";")[0]
+
+if 'cookie' in result:
+    solved_cookie = result['cookie'].split("datadome=")[1].split(";")[0]
+else:
+    logger.error(f"Failed to solve {result}")
+    exit(1)
 
 # Set solved cookie
 client.session.cookies.set(
