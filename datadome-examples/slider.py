@@ -1,5 +1,4 @@
 from salamoonder import Salamoonder
-from curl_cffi import requests
 
 # Configuration
 URL = "https://supercard.ch"
