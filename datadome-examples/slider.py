@@ -1,4 +1,5 @@
 from salamoonder import Salamoonder
+from loguru import logger
 
 # Configuration
 URL = "https://supercard.ch"
@@ -41,7 +42,10 @@ client.session.cookies.set(
 )
 
 # Verify bypass
-if client.get(URL, headers={"User-Agent": USER_AGENT}).status_code == 200:
-    print("Successfully bypassed DataDome!")
+response = client.get(URL, headers={"User-Agent": USER_AGENT})
+
+if response.status_code == 200:
+    logger.success("[+] Successfully bypassed DD Slider.")
+    logger.success(f"[+] Status Code: {response.status_code}")
 else:
-    print("Bypass failed")
+    logger.error("Bypass failed")
