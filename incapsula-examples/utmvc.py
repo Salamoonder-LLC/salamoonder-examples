@@ -17,7 +17,7 @@ HEADERS = {
 # Initialize client
 client = Salamoonder(API_KEY)
 
-# # Solve the challenge
+# Solve the challenge
 task_id = client.task.createTask(
     task_type="IncapsulaUTMVCSolver",
     website=URL,
