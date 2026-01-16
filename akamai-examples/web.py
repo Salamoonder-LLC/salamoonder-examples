@@ -9,7 +9,7 @@ API_KEY = "sr-YOUR-KEY"
 
 HEADERS = {
     "User-Agent": USER_AGENT,
-    "sec-ch-ua": '"Google Chrome";v="139", "Not-A.Brand";v="8", "Chromium";v="139"',
+    "sec-ch-ua": '"Google Chrome";v="141", "Not-A.Brand";v="8", "Chromium";v="141"',
     "sec-ch-ua-mobile": "?0",
     "sec-ch-ua-platform": '"Windows"',
     "accept-language": "en-US,en;q=0.9",
