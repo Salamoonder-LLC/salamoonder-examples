@@ -55,7 +55,7 @@ for i in range(3):
 
 # Verify and set cookies
 # Note: Some sites don't use ~0~ even after solving, this doesn't mean it failed, in this specific example we can check it via ~0~.
-if "~0~" in cookie['abck']:
+if "~0~" in cookie['_abck']:
     logger.success(f"Successfully solved Akamai on {URL}")
     for k, v in cookie.items():
         client.session.cookies.set(k, str(v), domain=".bol.com")
