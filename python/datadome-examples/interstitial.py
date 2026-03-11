@@ -1,3 +1,4 @@
+import asyncio
 from salamoonder import Salamoonder
 from loguru import logger
 
@@ -15,52 +16,48 @@ HEADERS = {
     "accept-language": "en-US,en;q=0.9",
 }
 
-# Initialize client
-client = Salamoonder(API_KEY)
+async def main():
+    async with Salamoonder(API_KEY) as client:
+        response = await client.get(URL, headers=HEADERS, proxy=PROXY, impersonate="chrome133a")
+        cookies = response.cookies.get('datadome')
 
-# Get initial response with DataDome Interstitial challenge
-response = client.get(URL, headers=HEADERS, proxy=PROXY, impersonate="chrome133a")
-cookies = response.cookies.get('datadome')
+        if not cookies:
+            logger.error("No DataDome cookie found")
+            return
 
-if not cookies:
-    logger.error("No DataDome cookie found")
-    exit(1)
+        constructed_url = await client.datadome.parse_interstitial_url(response.text, cookies, URL)
 
-# Construct Interstitial challenge
-constructed_url = client.datadome.parse_interstitial_url(response.text, cookies, URL)
+        task_id = await client.task.createTask(
+            task_type="DataDomeInterstitialSolver",
+            captcha_url=constructed_url,
+            user_agent=USER_AGENT,
+            country_code="pl"
+        )
 
-# Solve the challenge
-task_id = client.task.createTask(
-    task_type="DataDomeInterstitialSolver",
-    captcha_url=constructed_url,
-    user_agent=USER_AGENT,
-    country_code="pl"
-)
+        result = await client.task.getTaskResult(task_id)
 
-result = client.task.getTaskResult(task_id)
+        if "cookie" not in result:
+            logger.error(f"Failed to solve challenge: {result}")
+            return
 
-if "cookie" not in result:
-    logger.error(f"Failed to solve challenge: {result}")
-    exit(1)
+        cookie_str = result["cookie"]
+        solved_cookie = cookie_str.split("datadome=", 1)[1].split(";", 1)[0] if "datadome=" in cookie_str else cookie_str.split(";", 1)[0]
 
-# Extract solved cookie
-cookie_str = result["cookie"]
-solved_cookie = cookie_str.split("datadome=", 1)[1].split(";", 1)[0] if "datadome=" in cookie_str else cookie_str.split(";", 1)[0]
+        client.session.cookies.set(
+            name="datadome",
+            value=solved_cookie,
+            domain=".example.com",
+            path="/",
+            secure=True
+        )
 
-# Set solved cookie
-client.session.cookies.set(
-    name="datadome",
-    value=solved_cookie,
-    domain=".example.com",
-    path="/",
-    secure=True
-)
+        response = await client.get(URL, headers=HEADERS, proxy=PROXY, impersonate="chrome133a")
 
-# Verify bypass
-response = client.get(URL, headers=HEADERS, proxy=PROXY, impersonate="chrome133a")
+        if response.status_code == 200:
+            logger.success(response.text)
+            logger.success("Successfully bypassed Interstitial!")
+        else:
+            logger.error(f"Bypass failed (response: {response.text})")
 
-if response.status_code == 200:
-    logger.success(response.text)
-    logger.success("Successfully bypassed Interstitial!")
-else:
-    logger.error(f"Bypass failed (response: {response.text})")
+if __name__ == "__main__":
+    asyncio.run(main())

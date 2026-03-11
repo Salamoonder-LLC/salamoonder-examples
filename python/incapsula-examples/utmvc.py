@@ -1,3 +1,4 @@
+import asyncio
 from salamoonder import Salamoonder
 from loguru import logger
 
@@ -14,34 +15,32 @@ HEADERS = {
     "accept-language": "en-US,en;q=0.9",
 }
 
-# Initialize client
-client = Salamoonder(API_KEY)
+async def main():
+    async with Salamoonder(API_KEY) as client:
+        task_id = await client.task.createTask(
+            task_type="IncapsulaUTMVCSolver",
+            website=URL,
+            user_agent=USER_AGENT
+        )
 
-# Solve the challenge
-task_id = client.task.createTask(
-    task_type="IncapsulaUTMVCSolver",
-    website=URL,
-    user_agent=USER_AGENT
-)
+        result = await client.task.getTaskResult(task_id)
 
-result = client.task.getTaskResult(task_id)
+        if "utmvc" not in result:
+            logger.error(f"Failed to solve challenge: {result}")
+            return
 
-if "utmvc" not in result:
-    logger.error(f"Failed to solve challenge: {result}")
-    exit(1)
+        utmvc = result["utmvc"]
 
-utmvc = result["utmvc"]
+        client.session.cookies.set(
+            name="___utmvc",
+            value=utmvc,
+            domain=".example.com",
+            path="/",
+            secure=True
+        )
 
-# Set token cookie
-client.session.cookies.set(
-    name="___utmvc",
-    value=utmvc,
-    domain=".example.com",
-    path="/",
-    secure=True
-)
+        logger.success(f"Successfully solved UTMVC challenge: {utmvc[:150]}")
+        logger.success(f"User-Agent: {result['user-agent']}")
 
-logger.success(f"Successfully solved UTMVC challenge: {utmvc[:150]}")
-logger.success(f"User-Agent: {result['user-agent']}")
-
-# Your action here.
+if __name__ == "__main__":
+    asyncio.run(main())

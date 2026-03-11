@@ -1,3 +1,4 @@
+import asyncio
 from salamoonder import Salamoonder
 from loguru import logger
 
@@ -15,49 +16,48 @@ HEADERS = {
     "accept-language": "en-US,en;q=0.9",
 }
 
-# Initialize client
-client = Salamoonder(API_KEY)
+async def main():
+    async with Salamoonder(API_KEY) as client:
+        response = await client.get(URL, headers=HEADERS)
 
-# Get initial response
-response = client.get(URL, headers=HEADERS)
+        if "Pardon Our Interruption" not in response.text and "Incapsula incident ID" not in response.text:
+            logger.info("No challenge detected")
+            return
 
-if "Pardon Our Interruption" not in response.text and "Incapsula incident ID" not in response.text:
-    logger.info("No challenge detected")
-    exit(0)
+        logger.info("Incapsula challenge detected")
 
-logger.info("Incapsula challenge detected")
+        # Solve the challenge
+        task_id = await client.task.createTask(
+            task_type="IncapsulaReese84Solver",
+            website=URL,
+            submit_payload=True,
+            # Optional parameters
+            # reese_url="..." <- https://apidocs.salamoonder.com/tasks/incapsula/reese84#what-if-your-response-doesn't-match-ours
+            # user_agent=USER_AGENT
+        )
 
-# Solve the challenge
-task_id = client.task.createTask(
-    task_type="IncapsulaReese84Solver",
-    website=URL,
-    submit_payload=True,
-    # Optional parameters
-    # reese_url="..." <- https://apidocs.salamoonder.com/tasks/incapsula/reese84#what-if-your-response-doesn’t-match-ours
-    # user_agent=USER_AGENT
-)
+        result = await client.task.getTaskResult(task_id)
 
-result = client.task.getTaskResult(task_id)
+        if "token" not in result:
+            logger.error(f"Failed to solve challenge: {result}")
+            return
 
-if "token" not in result:
-    logger.error(f"Failed to solve challenge: {result}")
-    exit(1)
+        token = result["token"]
 
-token = result["token"]
+        client.session.cookies.set(
+            name="reese84",
+            value=token,
+            domain=".example.com",
+            path="/",
+            secure=True
+        )
 
-# Set token cookie
-client.session.cookies.set(
-    name="reese84",
-    value=token,
-    domain=".example.com",
-    path="/",
-    secure=True
-)
+        response = await client.get(URL, headers=HEADERS)
 
-# Verify bypass
-response = client.get(URL, headers=HEADERS)
+        if "Pardon Our Interruption" not in response.text and "Incapsula incident ID" not in response.text:
+            logger.success("Successfully bypassed Incapsula!")
+        else:
+            logger.error("Bypass failed")
 
-if "Pardon Our Interruption" not in response.text and "Incapsula incident ID" not in response.text:
-    logger.success("Successfully bypassed Incapsula!")
-else:
-    logger.error("Bypass failed")
+if __name__ == "__main__":
+    asyncio.run(main())

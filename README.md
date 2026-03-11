@@ -21,14 +21,19 @@ Whether you're just getting started or looking for inspiration on how to solve s
 
 #### Installation
 
-Clone both the Salamoonder SDK and this examples repository:
+Install the Salamoonder Python SDK via pip:
 
 ```bash
-git clone https://github.com/Salamoonder-LLC/salamoonder-py.git
+pip install salamoonder
+```
+
+Then clone this examples repository:
+
+```bash
 git clone https://github.com/Salamoonder-LLC/examples.git
 ```
 
-Make sure the `salamoonder` folder from `salamoonder-py` is available locally, and you're all set to run the examples!
+You're all set to run the examples!
 
 ### JavaScript Examples
 
