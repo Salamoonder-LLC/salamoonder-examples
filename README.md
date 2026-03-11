@@ -5,7 +5,7 @@ Welcome to the Salamoonder Examples repository! This collection showcases practi
 ## About
 
 This repository contains a curated set of examples demonstrating how to build with the Salamoonder SDKs:
-- [Salamoonder Python SDK](https://github.com/Salamoonder-LLC/salamoonder-py)
+- [Salamoonder Python SDK](https://pypi.org/project/salamoonder/)
 - [Salamoonder JavaScript SDK](https://www.npmjs.com/package/salamoonder-js)
 
 Whether you're just getting started or looking for inspiration on how to solve specific problems, you'll find working code samples here for both Python and JavaScript.
