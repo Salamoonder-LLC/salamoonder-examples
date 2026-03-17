@@ -7,8 +7,9 @@ Welcome to the Salamoonder Examples repository! This collection showcases practi
 This repository contains a curated set of examples demonstrating how to build with the Salamoonder SDKs:
 - [Salamoonder Python SDK](https://pypi.org/project/salamoonder/)
 - [Salamoonder JavaScript SDK](https://www.npmjs.com/package/salamoonder-js)
+- [Salamoonder Go SDK](https://github.com/Salamoonder-LLC/salamoonder-go)
 
-Whether you're just getting started or looking for inspiration on how to solve specific problems, you'll find working code samples here for both Python and JavaScript.
+Whether you're just getting started or looking for inspiration on how to solve specific problems, you'll find working code samples here for Python, JavaScript, and Go.
 
 ## Getting Started
 
@@ -58,6 +59,29 @@ yarn add salamoonder-js
 
 Then explore the JavaScript examples in the `javascript/` directory.
 
+### Go Examples
+
+#### Prerequisites
+
+- Go 1.21+
+- The Salamoonder Go SDK
+
+#### Installation
+
+Install the Salamoonder Go SDK:
+
+```bash
+go get github.com/salamoonder/salamoonder-go
+```
+
+Then clone this examples repository:
+
+```bash
+git clone https://github.com/Salamoonder-LLC/examples.git
+```
+
+Explore the Go examples in the `golang/` directory.
+
 ## Examples
 
 This repository contains examples for solving various bot detection and security challenges:
@@ -88,6 +112,7 @@ For detailed information about the Salamoonder SDKs:
 
 - **Python SDK**: Visit the [Salamoonder Python SDK repository](https://github.com/Salamoonder-LLC/salamoonder-py)
 - **JavaScript SDK**: Visit the [Salamoonder JS npm package](https://www.npmjs.com/package/salamoonder-js)
+- **Go SDK**: Visit the [Salamoonder Go SDK repository](https://github.com/Salamoonder-LLC/salamoonder-go)
 - **API Documentation**: Check out our [API Documentation](https://apidocs.salamoonder.com/tasks)
 
 ## License
