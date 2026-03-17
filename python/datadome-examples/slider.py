@@ -23,7 +23,7 @@ async def main():
             task_type="DataDomeSliderSolver",
             captcha_url=constructed_url,
             user_agent=USER_AGENT,
-            country_code="ch"
+            country_code="us"
         )
 
         result = await client.task.getTaskResult(task_id)

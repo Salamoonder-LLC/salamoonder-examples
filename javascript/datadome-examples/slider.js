@@ -25,7 +25,7 @@ async function main() {
     const taskId = await client.task.createTask('DataDomeSliderSolver', {
         captcha_url: constructedUrl,
         user_agent: USER_AGENT,
-        country_code: 'ch',
+        country_code: 'us',
     });
 
     const result = await client.task.getTaskResult(taskId);

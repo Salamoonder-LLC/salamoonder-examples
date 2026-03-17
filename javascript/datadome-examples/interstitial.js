@@ -33,7 +33,7 @@ async function main() {
     const taskId = await client.task.createTask('DataDomeInterstitialSolver', {
         captcha_url: constructedUrl,
         user_agent: USER_AGENT,
-        country_code: 'pl',
+        country_code: 'us',
     });
 
     const result = await client.task.getTaskResult(taskId);

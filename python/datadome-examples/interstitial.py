@@ -31,7 +31,7 @@ async def main():
             task_type="DataDomeInterstitialSolver",
             captcha_url=constructed_url,
             user_agent=USER_AGENT,
-            country_code="pl"
+            country_code="us"
         )
 
         result = await client.task.getTaskResult(task_id)
