@@ -71,7 +71,7 @@ Then explore the JavaScript examples in the `javascript/` directory.
 Install the Salamoonder Go SDK:
 
 ```bash
-go get github.com/salamoonder/salamoonder-go
+go get github.com/Salamoonder-LLC/salamoonder-go
 ```
 
 Then clone this examples repository:

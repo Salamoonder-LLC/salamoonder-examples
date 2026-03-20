@@ -4,7 +4,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/salamoonder/salamoonder-go"
+	"github.com/Salamoonder-LLC/salamoonder-go"
 )
 
 // Configuration

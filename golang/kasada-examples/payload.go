@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/salamoonder/salamoonder-go"
+	"github.com/Salamoonder-LLC/salamoonder-go"
 )
 
 // Keep in mind not using the same USER-AGENT as displayed as our docs will result in bad responses.

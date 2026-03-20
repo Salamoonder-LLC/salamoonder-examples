@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/salamoonder/salamoonder-go"
+	"github.com/Salamoonder-LLC/salamoonder-go"
 )
 
 // Configuration
