@@ -25,7 +25,7 @@ async def main():
             logger.error("No DataDome cookie found")
             return
 
-        constructed_url = await client.datadome.parse_interstitial_url(response.text, cookies, URL)
+        constructed_url = client.datadome.parse_interstitial_url(response.text, cookies, URL)
 
         task_id = await client.task.createTask(
             task_type="DataDomeInterstitialSolver",
