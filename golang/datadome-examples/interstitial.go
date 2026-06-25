@@ -1,8 +1,8 @@
 package main
 
 import (
+	"fmt"
 	"log"
-	"strings"
 
 	"github.com/Salamoonder-LLC/salamoonder-go"
 )
@@ -10,7 +10,7 @@ import (
 // Configuration
 const (
 	URL        = "https://example.com/"
-	USER_AGENT = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36`
+	USER_AGENT = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36`
 	PROXY      = "http://user:pass@ip:port"
 	API_KEY    = "sr-YOUR-KEY"
 )
@@ -37,52 +37,40 @@ func main() {
 		return
 	}
 
-	constructedURL, err := client.Datadome.ParseInterstitialURL(string(response.Body), cookies, URL)
+	challenge, err := client.Datadome.GetInterstitialChallenge(string(response.Body), cookies, URL, HEADERS, USER_AGENT)
 	if err != nil {
-		log.Fatalf("Failed to parse interstitial URL: %v", err)
+		log.Fatalf("Failed to get interstitial challenge: %v", err)
 	}
 
 	taskID, err := client.Task.CreateTask("DataDomeInterstitialSolver", map[string]interface{}{
-		"captcha_url":  constructedURL,
-		"user_agent":   USER_AGENT,
-		"country_code": "pl",
+		"captcha_url":    challenge["captcha_url"],
+		"challenge_page": challenge["challenge_page"],
+		"user_agent":     USER_AGENT,
 	})
 	if err != nil {
 		log.Fatalf("Failed to create task: %v", err)
 	}
 
-	result, err := client.Task.GetTaskResult(taskID)
+	result, err := client.Task.GetTaskResult(taskID, 1)
 	if err != nil {
 		log.Fatalf("Failed to get task result: %v", err)
 	}
 
-	cookieStr, ok := result["cookie"].(string)
+	solution, ok := result.(map[string]interface{})
+	if !ok {
+		log.Printf("ERROR: Unexpected result format: %+v", result)
+		return
+	}
+
+	solvedURL, ok := solution["url"].(string)
 	if !ok {
 		log.Printf("ERROR: Failed to solve challenge: %+v", result)
 		return
 	}
 
-	var solvedCookie string
-	if strings.Contains(cookieStr, "datadome=") {
-		parts := strings.SplitN(cookieStr, "datadome=", 2)
-		if len(parts) > 1 {
-			solvedCookie = strings.SplitN(parts[1], ";", 2)[0]
-		}
-	} else {
-		solvedCookie = strings.SplitN(cookieStr, ";", 2)[0]
-	}
-
-	client.SessionCookies.Set("datadome", solvedCookie, ".example.com")
-
-	response, err = client.Get(URL, HEADERS, PROXY)
+	cookieResponse, err := client.Get(solvedURL, HEADERS, "")
 	if err != nil {
-		log.Fatalf("Failed to validate bypass: %v", err)
+		log.Fatalf("Failed to retrieve cookie: %v", err)
 	}
-
-	if response.StatusCode == 200 {
-		log.Printf("SUCCESS: %s", string(response.Body))
-		log.Printf("SUCCESS: Successfully bypassed Interstitial!")
-	} else {
-		log.Printf("ERROR: Bypass failed (response: %s)", string(response.Body))
-	}
+	fmt.Println(string(cookieResponse.Body))
 }

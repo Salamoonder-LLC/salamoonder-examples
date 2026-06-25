@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/Salamoonder-LLC/salamoonder-go"
 )
@@ -11,16 +10,23 @@ import (
 // Configuration
 const (
 	URL        = "https://example.com/"
-	USER_AGENT = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36`
+	USER_AGENT = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36`
 	PROXY      = "http://user:pass@ip:port"
 	API_KEY    = "sr-YOUR-KEY"
 )
 
+var HEADERS = map[string]string{
+	"User-Agent":         USER_AGENT,
+	"sec-ch-ua":          `"Google Chrome";v="146", "Not-A.Brand";v="8", "Chromium";v="146"`,
+	"sec-ch-ua-mobile":   "?0",
+	"sec-ch-ua-platform": `"Windows"`,
+	"accept-language":    "en-US,en;q=0.9",
+}
+
 func main() {
 	client := salamoonder.New(API_KEY)
 
-	headers := map[string]string{"User-Agent": USER_AGENT}
-	response, err := client.Get(URL, headers, PROXY)
+	response, err := client.Get(URL, HEADERS, PROXY)
 	if err != nil {
 		log.Fatalf("Failed to get initial page: %v", err)
 	}
@@ -31,49 +37,40 @@ func main() {
 		return
 	}
 
-	constructedURL, err := client.Datadome.ParseSliderURL(string(response.Body), cookies, URL)
+	challenge, err := client.Datadome.GetSliderChallenge(string(response.Body), cookies, URL, HEADERS, USER_AGENT)
 	if err != nil {
-		log.Fatalf("Failed to parse slider URL: %v", err)
+		log.Fatalf("Failed to get slider challenge: %v", err)
 	}
 
 	taskID, err := client.Task.CreateTask("DataDomeSliderSolver", map[string]interface{}{
-		"captcha_url":  constructedURL,
-		"user_agent":   USER_AGENT,
-		"country_code": "us",
+		"captcha_url":    challenge["captcha_url"],
+		"challenge_page": challenge["challenge_page"],
+		"user_agent":     USER_AGENT,
 	})
 	if err != nil {
 		log.Fatalf("Failed to create task: %v", err)
 	}
 
-	result, err := client.Task.GetTaskResult(taskID)
+	result, err := client.Task.GetTaskResult(taskID, 1)
 	if err != nil {
 		log.Fatalf("Failed to get task result: %v", err)
 	}
 
-	var solvedCookie string
-	if cookieStr, ok := result["cookie"].(string); ok {
-		if strings.Contains(cookieStr, "datadome=") {
-			parts := strings.Split(cookieStr, "datadome=")
-			if len(parts) > 1 {
-				solvedCookie = strings.Split(parts[1], ";")[0]
-			}
-		}
-	} else {
+	solution, ok := result.(map[string]interface{})
+	if !ok {
+		log.Printf("ERROR: Unexpected result format: %+v", result)
+		return
+	}
+
+	solvedURL, ok := solution["url"].(string)
+	if !ok {
 		log.Printf("ERROR: Failed to solve %+v", result)
 		return
 	}
 
-	client.SessionCookies.Set("datadome", solvedCookie, ".example.com")
-
-	response, err = client.Get(URL, headers, "")
+	cookieResponse, err := client.Get(solvedURL, HEADERS, "")
 	if err != nil {
-		log.Fatalf("Failed to validate bypass: %v", err)
+		log.Fatalf("Failed to retrieve cookie: %v", err)
 	}
-
-	if response.StatusCode == 200 {
-		log.Printf("SUCCESS: [+] Successfully bypassed DD Slider.")
-		log.Printf("SUCCESS: [+] Status Code: %d", response.StatusCode)
-	} else {
-		log.Printf("ERROR: Bypass failed")
-	}
+	fmt.Println(string(cookieResponse.Body))
 }
